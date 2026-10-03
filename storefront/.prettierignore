@@ -1,0 +1,7 @@
+dist
+node_modules
+public/images
+package-lock.json
+# scripts/fetch-photos.mjs が書き出すファイル（再実行で lint が落ちないように除外）
+CREDITS.md
+src/data/photos.json
