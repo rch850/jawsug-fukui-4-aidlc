@@ -18,5 +18,7 @@
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
 
+- 2026-10-03T07:42:46Z — CR-1 postal autofill: chose zipcloud runtime API (user picked A) over bundling Japan Post data (official download URL returned 404 / page restructured) or a small sample set; accepted an NFR-1 exception limited to sending the postal code, with manual entry as fallback.
+
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->

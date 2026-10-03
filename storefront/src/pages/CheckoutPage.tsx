@@ -1,17 +1,28 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { RadioGroup } from '../components/RadioGroup';
+import { SelectField } from '../components/SelectField';
 import { TextField } from '../components/TextField';
 import { PRODUCTS } from '../data/products';
 import { findProductById, formatPrice } from '../domain/catalog';
 import { lineKey, lineSubtotal } from '../domain/cart';
 import {
+  AUTOFILL_MESSAGES,
+  PREFECTURES,
+  isPrefecture,
+  normalizePostalCode,
+  planAutofill,
+  type AutofillStatus,
+} from '../domain/address';
+import {
   DEFAULT_PAYMENT_METHOD,
   EMPTY_SHIPPING_FORM,
   PAYMENT_METHODS,
+  applyAutofill,
   firstErrorField,
+  formatShippingAddress,
   hasErrors,
   paymentLabel,
   validateShipping,
@@ -20,6 +31,7 @@ import {
   type ShippingField,
   type ShippingForm,
 } from '../domain/checkout';
+import { lookupAddress } from '../services/postalLookup';
 import { useCart } from '../state/cartContext';
 import { pageTitle } from './pageTitle';
 
@@ -29,6 +41,7 @@ type Step = 'input' | 'confirm';
  * 注文手続き `/checkout`（US-7、US-8）。「配送先の入力」と「確認」の 2 段階を同じ画面で切り替える。
  * 入力内容は React の状態にだけ持ち、ブラウザには保存しない（NFR-2）。
  * カード番号などの入力欄は持たない（FR-4.3）。
+ * 郵便番号が 7 桁になったら zipcloud で住所を引いて自動入力する（FR-4.7、CR-1）。外部に送るのは郵便番号だけ。
  */
 export function CheckoutPage() {
   const { lines, totalAmount, placeOrder } = useCart();
@@ -38,22 +51,100 @@ export function CheckoutPage() {
   const [payment, setPayment] = useState<PaymentMethod>(DEFAULT_PAYMENT_METHOD);
   const [errors, setErrors] = useState<ShippingErrors>({});
   const [placed, setPlaced] = useState(false);
+  const [autofill, setAutofill] = useState<AutofillStatus>('idle');
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const streetRef = useRef<HTMLInputElement>(null);
+  /** 実行中の住所検索（新しい郵便番号が入ったら中断する）。 */
+  const lookupRef = useRef<AbortController | null>(null);
+  /** 最後に検索を始めた郵便番号（ハイフンの有無だけ違う入力で引き直さないため）。 */
+  const lookupZipRef = useRef<string | null>(null);
+  /** 前回自動入力した町名（利用者が手を入れていなければ、次の自動入力で置き換えてよい）。 */
+  const lastAutofillStreetRef = useRef<string | null>(null);
+
+  // 画面を離れたら実行中の住所検索を中断する
+  useEffect(() => () => lookupRef.current?.abort(), []);
 
   // カートが空のまま開いたらカートへ（FR-4.6）。注文確定の直後はカートが空になるので除く
   if (lines.length === 0 && !placed) {
     return <Navigate to="/cart" replace />;
   }
 
-  const update = (field: ShippingField) => (value: string) => {
-    setForm((current) => ({ ...current, [field]: value }));
-    // 入力し直した項目のエラーは消す（次に「次へ」を押したときに再判定する）
+  const clearErrors = (fields: readonly ShippingField[]) => {
     setErrors((current) => {
-      if (!current[field]) return current;
+      if (!fields.some((field) => current[field])) return current;
       const next = { ...current };
-      delete next[field];
+      for (const field of fields) delete next[field];
       return next;
     });
+  };
+
+  const update =
+    <F extends ShippingField>(field: F) =>
+    (value: ShippingForm[F]) => {
+      setForm((current) => ({ ...current, [field]: value }));
+      // 入力し直した項目のエラーは消す（次に「次へ」を押したときに再判定する）
+      clearErrors([field]);
+    };
+
+  const cancelLookup = () => {
+    lookupRef.current?.abort();
+    lookupRef.current = null;
+    lookupZipRef.current = null;
+  };
+
+  const startLookup = async (zip7: string) => {
+    cancelLookup();
+    const controller = new AbortController();
+    lookupRef.current = controller;
+    lookupZipRef.current = zip7;
+    setAutofill('loading');
+
+    const result = await lookupAddress(zip7, controller.signal);
+    // 待っている間に別の郵便番号が入った・画面を離れた・「次へ」で進んだときは捨てる
+    if (controller.signal.aborted) return;
+    lookupRef.current = null;
+
+    const plan = result.kind === 'found' ? planAutofill(result.candidates) : null;
+    if (!plan) {
+      // 見つからない・通信できないときは案内だけ出す（入力チェックのエラーではなく、「次へ」は止めない）
+      setAutofill(result.kind === 'error' ? 'error' : 'notFound');
+      return;
+    }
+
+    const postalField = document.getElementById('postalCode');
+    const stillOnPostalCode = document.activeElement === postalField;
+    const previousAutofill = lastAutofillStreetRef.current;
+    flushSync(() => {
+      setForm((current) => applyAutofill(current, plan, previousAutofill));
+      setAutofill(plan.outcome);
+    });
+    if (plan.town !== null) lastAutofillStreetRef.current = plan.town;
+
+    const street = streetRef.current;
+    const streetFilled = street !== null && street.value.trim() !== '';
+    clearErrors(streetFilled ? ['prefecture', 'city', 'street'] : ['prefecture', 'city']);
+    // 町名・番地の欄へ移り、カーソルを末尾に置いて続けて番地を打てるようにする。
+    // 利用者がすでに別の欄へ移っていたら、フォーカスは奪わない
+    if (street && stillOnPostalCode) {
+      street.focus();
+      const end = street.value.length;
+      street.setSelectionRange(end, end);
+    }
+  };
+
+  const handlePostalCodeChange = (value: string) => {
+    update('postalCode')(value);
+    const zip7 = normalizePostalCode(value);
+    if (zip7 === null) {
+      // 7 桁でなくなったら、実行中の検索と前の案内を取り消す
+      if (lookupZipRef.current !== null) {
+        cancelLookup();
+        setAutofill('idle');
+      }
+      return;
+    }
+    if (zip7 === lookupZipRef.current) return;
+    void startLookup(zip7);
   };
 
   const goToStep = (next: Step) => {
@@ -74,6 +165,11 @@ export function CheckoutPage() {
       return;
     }
     setErrors({});
+    // 確認の段階で住所が書き換わらないよう、実行中の検索は中断する
+    if (lookupRef.current) {
+      cancelLookup();
+      setAutofill('idle');
+    }
     goToStep('confirm');
   };
 
@@ -113,18 +209,57 @@ export function CheckoutPage() {
                 label="郵便番号"
                 autoComplete="postal-code"
                 inputMode="numeric"
-                hint="例: 123-4567"
+                hint="例: 123-4567。7 桁を入力すると住所を自動入力します"
                 value={form.postalCode}
-                onChange={update('postalCode')}
+                onChange={handlePostalCodeChange}
                 error={errors.postalCode}
+              >
+                {/* 住所の自動入力の状態（読み上げ用のライブリージョンなので、空でも常に置いておく） */}
+                <p
+                  className="autofill-status"
+                  role="status"
+                  data-status={autofill}
+                  data-testid="checkout-postal-status"
+                >
+                  {AUTOFILL_MESSAGES[autofill]}
+                </p>
+              </TextField>
+              <SelectField
+                id="prefecture"
+                label="都道府県"
+                autoComplete="address-level1"
+                options={PREFECTURES}
+                value={form.prefecture}
+                onChange={(value) => update('prefecture')(isPrefecture(value) ? value : '')}
+                error={errors.prefecture}
               />
               <TextField
-                id="address"
-                label="住所"
-                autoComplete="street-address"
-                value={form.address}
-                onChange={update('address')}
-                error={errors.address}
+                id="city"
+                label="市区町村"
+                autoComplete="address-level2"
+                placeholder="例: 福井市"
+                value={form.city}
+                onChange={update('city')}
+                error={errors.city}
+              />
+              <TextField
+                id="street"
+                label="町名・番地"
+                autoComplete="address-line1"
+                placeholder="例: 大手3-17-1"
+                ref={streetRef}
+                value={form.street}
+                onChange={update('street')}
+                error={errors.street}
+              />
+              <TextField
+                id="building"
+                label="建物名・部屋番号"
+                autoComplete="address-line2"
+                placeholder="例: フクイハイツ 201"
+                required={false}
+                value={form.building}
+                onChange={update('building')}
               />
               <TextField
                 id="phone"
@@ -194,10 +329,8 @@ export function CheckoutPage() {
               <dl className="confirm-list" data-testid="confirm-shipping">
                 <dt>氏名</dt>
                 <dd>{form.name.trim()}</dd>
-                <dt>郵便番号</dt>
-                <dd>〒{form.postalCode.trim()}</dd>
                 <dt>住所</dt>
-                <dd>{form.address.trim()}</dd>
+                <dd data-testid="confirm-address">{formatShippingAddress(form)}</dd>
                 <dt>電話番号</dt>
                 <dd>{form.phone.trim()}</dd>
                 <dt>メールアドレス</dt>

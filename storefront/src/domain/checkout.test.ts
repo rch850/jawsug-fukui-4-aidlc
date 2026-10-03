@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  EMPTY_SHIPPING_FORM,
   ERROR_MESSAGES,
+  applyAutofill,
   firstErrorField,
+  formatShippingAddress,
   hasErrors,
   normalizeDigits,
   validateShipping,
@@ -12,7 +15,10 @@ import { ORDER_NUMBER_PATTERN, generateOrderNumber } from './order';
 const valid: ShippingForm = {
   name: '田中 健太',
   postalCode: '910-0005',
-  address: '福井県福井市大手 3-10-1',
+  prefecture: '福井県',
+  city: '福井市',
+  street: '大手3-17-1',
+  building: '',
   phone: '090-1234-5678',
   email: 'kenta@example.com',
 };
@@ -54,18 +60,86 @@ describe('validateShipping（US-7 / FR-4.2）', () => {
     expect(validateShipping({ ...valid, email: 'kenta@example' }).email).toBe(ERROR_MESSAGES.email);
   });
 
-  it('全部空なら 5 項目すべてにエラーが出て、最初のエラー項目は氏名', () => {
-    const errors = validateShipping({
-      name: '',
-      postalCode: '',
-      address: '',
-      phone: '',
-      email: '',
+  it('住所の必須 3 項目（都道府県・市区町村・町名・番地）が空ならそれぞれエラー（エラー）', () => {
+    const errors = validateShipping({ ...valid, prefecture: '', city: ' ', street: '' });
+    expect(errors).toEqual({
+      prefecture: '都道府県を選択してください',
+      city: '市区町村を入力してください',
+      street: '町名・番地を入力してください',
     });
-    expect(Object.keys(errors)).toHaveLength(5);
+    expect(firstErrorField(errors)).toBe('prefecture');
+  });
+
+  it('建物名・部屋番号は任意。空でも入っていてもエラーにならない（境界）', () => {
+    expect(validateShipping({ ...valid, building: '' })).toEqual({});
+    expect(validateShipping({ ...valid, building: 'フクイハイツ 201' })).toEqual({});
+  });
+
+  it('47 都道府県にない値は都道府県のエラー（エラー）', () => {
+    const tampered = { ...valid, prefecture: '架空県' } as unknown as ShippingForm;
+    expect(validateShipping(tampered).prefecture).toBe(ERROR_MESSAGES.prefecture);
+  });
+
+  it('全部空なら必須 7 項目すべてにエラーが出て、最初のエラー項目は氏名', () => {
+    const errors = validateShipping(EMPTY_SHIPPING_FORM);
+    expect(Object.keys(errors)).toHaveLength(7);
+    expect(errors.building).toBeUndefined();
     expect(firstErrorField(errors)).toBe('name');
     expect(firstErrorField({ phone: ERROR_MESSAGES.phone, email: ERROR_MESSAGES.email })).toBe(
       'phone',
+    );
+  });
+});
+
+describe('applyAutofill（FR-4.7）', () => {
+  const plan = { prefecture: '福井県', city: '福井市', town: '大手', outcome: 'filled' } as const;
+  const empty: ShippingForm = { ...EMPTY_SHIPPING_FORM, name: '田中 健太', postalCode: '9100005' };
+
+  it('空の欄に都道府県・市区町村・町名を入れ、ほかの項目は変えない（正常系）', () => {
+    expect(applyAutofill(empty, plan, null)).toEqual({
+      ...empty,
+      prefecture: '福井県',
+      city: '福井市',
+      street: '大手',
+    });
+  });
+
+  it('手で入れた町名・番地は上書きしない。前回の自動入力のままなら置き換える', () => {
+    const typed = { ...empty, street: '中央1-1-1' };
+    expect(applyAutofill(typed, plan, '中央').street).toBe('中央1-1-1');
+    const untouched = {
+      ...empty,
+      prefecture: '北海道' as const,
+      city: '美唄市',
+      street: '上美唄町',
+    };
+    expect(applyAutofill(untouched, plan, '上美唄町')).toMatchObject({
+      prefecture: '福井県',
+      city: '福井市',
+      street: '大手',
+    });
+  });
+
+  it('町名が決まらない（候補が複数）ときは町名・番地を変えない（境界）', () => {
+    const multiple = { ...plan, town: null, outcome: 'multiple' } as const;
+    expect(applyAutofill(empty, multiple, null).street).toBe('');
+  });
+});
+
+describe('formatShippingAddress（US-8）', () => {
+  it('〒123-4567 都道府県市区町村町名・番地 建物名 の形で表示する', () => {
+    expect(
+      formatShippingAddress({
+        ...valid,
+        postalCode: '９１０－０００５',
+        building: 'フクイハイツ 201',
+      }),
+    ).toBe('〒910-0005 福井県福井市大手3-17-1 フクイハイツ 201');
+  });
+
+  it('建物名が空なら省く（境界）', () => {
+    expect(formatShippingAddress({ ...valid, building: '  ' })).toBe(
+      '〒910-0005 福井県福井市大手3-17-1',
     );
   });
 });

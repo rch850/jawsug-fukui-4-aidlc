@@ -2047,3 +2047,344 @@
 **Feedback**: 郵便番号から自動的に住所を入れてほしい。住所欄を都道府県、市区町村など日本のよくある形式にしてほしい。
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-10-03T07:40:24Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: Change request: postal-code address lookup data source + address field layout
+**Options**: Q3: zipcloud API, bundle Japan Post data, sample subset; Q4: 4 fields, 5 fields
+
+---
+
+## Question Answered
+**Timestamp**: 2026-10-03T07:42:08Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Q3: A. 無料 API zipcloud (推奨) / Q4: A. 4 項目 (推奨)
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:43:03Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9876398601101161
+**Message**: Reading CR-1 requirements and stories diff
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-03T07:45:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: a7f39f25
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/digits.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-03T07:45:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: a7f39f25
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/digits.ts
+**Duration ms**: 1529
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-03T07:45:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 805267d9
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/digits.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-03T07:45:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 805267d9
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/digits.ts
+**Duration ms**: 161
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-03T07:45:32Z
+**Event**: SENSOR_FIRED
+**Fire id**: fec34855
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/address.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-03T07:45:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: fec34855
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/address.ts
+**Duration ms**: 1523
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-03T07:45:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: f931bef1
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/address.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-03T07:45:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: f931bef1
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/address.ts
+**Duration ms**: 164
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:45:34Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a6d012636f0e097e2
+**Message**: Creating normalizeDigits in digits.ts
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:46:07Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a0cf4e7517ace98e8
+**Message**: Updating validateShipping in checkout.ts
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-03T07:46:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4aaa6d67
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: storefront/src/services/postalLookup.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-03T07:46:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4aaa6d67
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: storefront/src/services/postalLookup.ts
+**Duration ms**: 1580
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-03T07:46:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: afb4989d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: storefront/src/services/postalLookup.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-03T07:46:09Z
+**Event**: SENSOR_PASSED
+**Fire id**: afb4989d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: storefront/src/services/postalLookup.ts
+**Duration ms**: 168
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:46:38Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a239827ce5ef080ed
+**Message**: Creating SelectField and updating TextField
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:47:11Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a2224b25ef1d2ec2e
+**Message**: Rewriting CheckoutPage.tsx address fields
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:47:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a01630972b81c1716
+**Message**: Writing address.test.ts unit tests
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-03T07:47:57Z
+**Event**: SENSOR_FIRED
+**Fire id**: abadb7a4
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/address.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-03T07:47:58Z
+**Event**: SENSOR_PASSED
+**Fire id**: abadb7a4
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/address.test.ts
+**Duration ms**: 1498
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-10-03T07:47:58Z
+**Event**: SENSOR_FIRED
+**Fire id**: 793341b6
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/address.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-10-03T07:47:59Z
+**Event**: SENSOR_PASSED
+**Fire id**: 793341b6
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: storefront/src/domain/address.test.ts
+**Duration ms**: 158
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:48:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: afd65ad7588ad0ccf
+**Message**: Updating checkout.test.ts for address fields
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:48:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a500c5bca6773e621
+**Message**: Live-checking lookupAddress against zipcloud
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:49:19Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3c4be1333592dab9
+**Message**: Reviewing CheckoutPage autofill logic
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:49:51Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aaf82acf5bef275ff
+**Message**: Inspecting stray sensor .tsbuildinfo file
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:50:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aca3c78d224bd3e08
+**Message**: Reporting stray storefront/aidlc sensor scratch
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-10-03T07:50:27Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-developer-agent
+**Agent ID**: a1f815848f91e97a4
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-10-03T07:53:26Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: code-generation
+**Details**: Re-entering gate after revision
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-10-03T07:53:26Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: Code generation approval gate after CR-1 + whether to commit CR-1
+**Options**: Approve,Request Changes; commit CR-1 now, later
+
+---
+
+## Question Answered
+**Timestamp**: 2026-10-03T07:55:09Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Approval: Approve / コミット: 今すぐコミット (推奨)
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-10-03T07:55:09Z
+**Event**: GATE_APPROVED
+**Stage**: code-generation
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-10-03T07:55:09Z
+**Event**: STAGE_COMPLETED
+**Stage**: code-generation
+**Details**: Stage Code Generation approved by gate
+
+---
+
+## Stage Start
+**Timestamp**: 2026-10-03T07:55:09Z
+**Event**: STAGE_STARTED
+**Stage**: build-and-test
+**Agent**: aidlc-quality-agent
+
+---

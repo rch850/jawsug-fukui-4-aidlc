@@ -753,6 +753,30 @@ input:checked + .size-chip {
   font-size: var(--font-size-sm);
 }
 
+.text-field__optional {
+  margin-left: var(--space-2);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-sub);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+}
+
+.text-field__input::placeholder {
+  color: var(--color-placeholder);
+}
+
+.text-field__select {
+  cursor: pointer;
+}
+
+/* 郵便番号からの住所の自動入力の状態（role="status"。エラーではないので赤にしない） */
+.autofill-status {
+  margin: 0;
+  color: var(--color-text-sub);
+  font-size: var(--font-size-md);
+}
+
 .radio-option {
   position: relative;
 }
