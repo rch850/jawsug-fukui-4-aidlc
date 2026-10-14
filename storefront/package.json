@@ -10,8 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "test": "vitest run",
-    "fetch-photos": "node scripts/fetch-photos.mjs"
+    "test": "vitest run"
   },
   "dependencies": {
     "react": "^19.3.0",

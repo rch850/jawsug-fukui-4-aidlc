@@ -21,15 +21,14 @@ npm run dev
 
 ## npm スクリプト
 
-| コマンド               | 内容                                                                       |
-| ---------------------- | -------------------------------------------------------------------------- |
-| `npm run dev`          | 開発サーバーを起動する                                                     |
-| `npm run build`        | 型チェック（`tsc -b`）と本番用ビルド（`dist/`）                            |
-| `npm run preview`      | ビルド結果をローカルで表示する                                             |
-| `npm run lint`         | ESLint と Prettier のチェック                                              |
-| `npm run format`       | Prettier で整形する                                                        |
-| `npm test`             | Vitest の単体テスト（`src/domain/*.test.ts`）                              |
-| `npm run fetch-photos` | 商品写真を Unsplash から取り直す（通常は不要。写真は同梱済み。下記を参照） |
+| コマンド          | 内容                                            |
+| ----------------- | ----------------------------------------------- |
+| `npm run dev`     | 開発サーバーを起動する                          |
+| `npm run build`   | 型チェック（`tsc -b`）と本番用ビルド（`dist/`） |
+| `npm run preview` | ビルド結果をローカルで表示する                  |
+| `npm run lint`    | ESLint と Prettier のチェック                   |
+| `npm run format`  | Prettier で整形する                             |
+| `npm test`        | Vitest の単体テスト（`src/domain/*.test.ts`）   |
 
 ## 画面一覧
 
@@ -75,9 +74,9 @@ npm run dev
 商品写真は [Unsplash](https://unsplash.com) の無料写真（Unsplash License。有料の Unsplash+ は使っていません）を 1 商品 1 枚、`public/images/` に同梱しています。
 撮影者と写真ページは [`CREDITS.md`](./CREDITS.md) にあります。写真の表示のためにネットワークに接続することはありません。
 
-`npm run fetch-photos`（`scripts/fetch-photos.mjs`）は、目視で選んだ写真 ID を取得し、取得できなければ検索語で代わりを探します。
-このスクリプトは Unsplash の公式 API ではなく、ウェブサイトが内部で使う非公式のエンドポイントを API キーなしで呼んでいます。利用条件に沿っておらず、いつでも使えなくなりうるため、写真を取り直すときや本番で使うときは公式 API（Access Key は環境変数から読む）に切り替えてください。
-写真を取得できなかった商品は `src/data/photos.json` に載らず、画面では 1 色目で塗った枠（商品名とカラー名入り）を表示します。
+写真は開発時に一度だけ取得して同梱したもので、取得用のスクリプトはリポジトリに含めていません。
+差し替えるときは Unsplash の公式 API（Access Key は環境変数から読む）などで取得し、`public/images/`・`src/data/photos.json`・`CREDITS.md` をそろえて更新してください。
+`src/data/photos.json` に載っていない商品は、画面では 1 色目で塗った枠（商品名とカラー名入り）を表示します。
 写真を差し替えたときは、`src/data/products.ts` の各商品の 1 色目を写真の服の色に合わせてください。
 
 ## ディレクトリ構成
@@ -85,7 +84,6 @@ npm run dev
 ```
 storefront/
 ├── public/images/        商品写真（Unsplash、同梱）
-├── scripts/fetch-photos.mjs  写真の取得スクリプト（開発時に一度だけ実行）
 ├── src/
 │   ├── data/             商品 12 点、カラーコード、写真の出典（photos.json）
 │   ├── domain/           画面に依存しない処理（絞り込み、カート、入力チェック、住所、注文番号）とそのテスト
