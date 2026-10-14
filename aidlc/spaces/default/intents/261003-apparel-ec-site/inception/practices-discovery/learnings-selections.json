@@ -1,0 +1,13 @@
+{
+  "stage_slug": "practices-discovery",
+  "selections": [
+    {
+      "candidate_id": "u1",
+      "type": "learning",
+      "source": "user_addition",
+      "scope": "project",
+      "heading": "## Corrections",
+      "text": "ユーザーに判断を求めるときは、判断に必要な要素を必ず添える（聞いている対象が何か、各選択肢を選ぶと具体的に何が起きるか・どのファイルや後続ステージに影響するか、推奨とその理由）。説明なしに内部用語（ステージの日記、memory.md、候補 ID など）を出さない"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+node_modules
+dist
+*.local
+.vite
+
+# AI-DLC の型チェックセンサーが作業ディレクトリを誤認して作る一時ファイル
+aidlc/

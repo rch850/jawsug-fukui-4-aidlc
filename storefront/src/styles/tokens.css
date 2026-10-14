@@ -1,0 +1,43 @@
+/* デザイントークン（design-system-mapping.md「Design Tokens」） */
+:root {
+  /* Color */
+  --color-bg: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-sub: #595959;
+  --color-border: #d9d9d9; /* 区切り線（装飾のみ） */
+  --color-border-strong: #767676; /* 入力欄・ボタン・白の色見本の枠線 */
+  --color-placeholder: #767676; /* 入力欄のプレースホルダー（白地で 4.5:1 以上） */
+  --color-surface: #f5f5f5;
+  --color-accent: #b71c1c;
+  --color-accent-hover: #8e1414;
+  --color-disabled: #bdbdbd;
+  --color-error: #b71c1c;
+  --color-toast-bg: #1a1a1a;
+  --color-on-accent: #ffffff;
+
+  /* Typography */
+  --font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+
+  /* Spacing / Shape */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --radius: 0;
+  --header-height: 56px;
+  --content-max-width: 1200px;
+  --gutter: 16px;
+  --focus-ring: 2px solid var(--color-text);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}
